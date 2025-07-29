@@ -43,8 +43,8 @@ app.get('/auth_check',(req,res)=>{
 app.post('/logout', (req, res) => {
   res.clearCookie('token', {
     httpOnly: true,
-    secure: false, // true in production
-    sameSite: 'Lax',
+    secure: true, // true in production
+    sameSite: 'none',
   });
   res.json({ success: true, message: 'Logged out' });
 });
