@@ -5,8 +5,6 @@ const axios = require("axios");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const jwt = require('jsonwebtoken');
-const cookieParser = require('cookie-parser');
-app.use(cookieParser());
 app.use(express.json());
 
 
@@ -30,48 +28,24 @@ app.get('/',(req,res)=>{
 
 //Grant access user to auto login into /dashboard if the jwt cookie data is correct
 app.get('/auth_check',(req,res)=>{
-  const token=req.cookies.token;
-  if(!token){
-    return res.json({isAuthenticated:false});
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.json({ isAuthenticated: false });
   }
+  const token = authHeader.split(" ")[1];
   try {
-    const decoded=jwt.verify(token,process.env.JWT_SECRET);
-    res.json({isAuthenticated:true,user:decoded})
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    res.json({ isAuthenticated: true, user: decoded });
   } catch (error) {
-    res.json({isAuthenticated:false})
+    res.json({ isAuthenticated: false });
   }
 });
 
 
 //Clear cookies to logout
 app.post('/logout', (req, res) => {
-  res.clearCookie('token', {
-    httpOnly: true,
-    secure: true, // true in production
-    sameSite: 'none',
-  });
-  res.json({ success: true, message: 'Logged out' });
+ res.json({ success: true, message: 'Logged out (client should clear token)' });
 });
-
-
-//Send user info to frontend(/dashboard)
-app.get('/userInfo', (req, res) => {
-  console.log('Cookies received at /userInfo:', req.cookies); // 👀
-  const token = req.cookies.token;
-  if (!token) return res.status(401).json({ error: 'No token found' });
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    res.json({ user: decoded });
-  } catch (err) {
-    console.error('JWT error:', err.message);
-    res.status(401).json({ error: 'Invalid token' });
-  }
-});
-
-
-
-
 
 //redirect user to google's auth page
 //After successfull login google redirect to predefined redirect url(can be change from google cloud console)
@@ -135,14 +109,26 @@ app.get("/auth/google/callback", async (req, res) => {
 
 
     // Redirect to dashboard
-    res.redirect(`${process.env.FRONTEND_URL}/dashboard`);
+    res.redirect(`${process.env.FRONTEND_URL}/dashboard?token=${token}`);
   } catch (error) {
     console.error(error.response?.data || error.message);
     res.status(500).send('OAuth failed');
   }
 });
 
-
+app.get('/userInfo', (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ error: "No token found" });
+  }
+  const token = authHeader.split(" ")[1];
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    res.json({ user: decoded });
+  } catch (error) {
+    res.status(401).json({ error: "Invalid token" });
+  }
+});
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
