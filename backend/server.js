@@ -12,8 +12,7 @@ app.use(cookieParser());
 dotenv.config();
 app.use(cors({
   origin: [
-    `${process.env.FRONTEND_URL}`,
-    'https://o-auth-2-0-frontend.vercel.app'
+    process.env.FRONTEND_URL || "https://o-auth-2-0-frontend.vercel.app",
   ],
   credentials: true
 }));
@@ -53,6 +52,7 @@ app.post('/logout', (req, res) => {
 //Send user info to frontend(/dashboard)
 app.get('/userInfo', (req, res) => {
   try {
+    console.log('Cookies:', req.cookies); // Add this
     const token = req.cookies.token;
     if (!token) return res.status(401).json({ error: 'No token found' });
 
@@ -63,7 +63,6 @@ app.get('/userInfo', (req, res) => {
     res.status(500).json({ error: 'Invalid token or internal error' });
   }
 });
-
 
 
 
@@ -124,7 +123,7 @@ app.get("/auth/google/callback", async (req, res) => {
     res.cookie('token', token, {
       httpOnly: true,
       secure: true, // set to true if using HTTPS
-      sameSite: 'none',
+      sameSite: "None",
       maxAge: 24 * 60 * 60 * 1000, // 1 day
     });
 
