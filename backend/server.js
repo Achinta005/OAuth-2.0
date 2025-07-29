@@ -123,7 +123,7 @@ app.get("/auth/google/callback", async (req, res) => {
     // Set HTTP-only cookie that can be accessed by server only--And then send to users browser valid for 1day
     res.cookie('token', token, {
       httpOnly: true,
-      secure: false, // set to true if using HTTPS
+      secure: true, // set to true if using HTTPS
       sameSite: 'Lax',
       maxAge: 24 * 60 * 60 * 1000, // 1 day
     });
