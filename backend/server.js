@@ -124,7 +124,7 @@ app.get("/auth/google/callback", async (req, res) => {
 
     // Set HTTP-only cookie that can be accessed by server only--And then send to users browser valid for 1day
     res.cookie('token', token, {
-      httpOnly: true,
+      // httpOnly: true,
       secure: true, // set to true if using HTTPS
       sameSite: "None",
       maxAge: 24 * 60 * 60 * 1000, // 1 day
@@ -132,16 +132,7 @@ app.get("/auth/google/callback", async (req, res) => {
 
 
     // Redirect to dashboard
-    res.send(`
-  <html>
-    <body>
-      <script>
-        window.location.href = "${process.env.FRONTEND_URL}/dashboard";
-      </script>
-    </body>
-  </html>
-`);
-
+    res.redirect(`${process.env.FRONTEND_URL}/dashboard`);
   } catch (error) {
     console.error(error.response?.data || error.message);
     res.status(500).send('OAuth failed');
