@@ -132,7 +132,16 @@ app.get("/auth/google/callback", async (req, res) => {
 
 
     // Redirect to dashboard
-    res.redirect(`${process.env.FRONTEND_URL}/dashboard`);
+    res.send(`
+  <html>
+    <body>
+      <script>
+        window.location.href = "${process.env.FRONTEND_URL}/dashboard";
+      </script>
+    </body>
+  </html>
+`);
+
   } catch (error) {
     console.error(error.response?.data || error.message);
     res.status(500).send('OAuth failed');
