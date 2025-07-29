@@ -51,18 +51,19 @@ app.post('/logout', (req, res) => {
 
 //Send user info to frontend(/dashboard)
 app.get('/userInfo', (req, res) => {
-  try {
-    console.log('Cookies:', req.cookies); // Add this
-    const token = req.cookies.token;
-    if (!token) return res.status(401).json({ error: 'No token found' });
+  console.log('Cookies received at /userInfo:', req.cookies); // 👀
+  const token = req.cookies.token;
+  if (!token) return res.status(401).json({ error: 'No token found' });
 
+  try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     res.json({ user: decoded });
   } catch (err) {
-    console.error('Error in /userInfo:', err.message);
-    res.status(500).json({ error: 'Invalid token or internal error' });
+    console.error('JWT error:', err.message);
+    res.status(401).json({ error: 'Invalid token' });
   }
 });
+
 
 
 
