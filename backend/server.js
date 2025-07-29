@@ -52,20 +52,18 @@ app.post('/logout', (req, res) => {
 
 //Send user info to frontend(/dashboard)
 app.get('/userInfo', (req, res) => {
-  res.json({
-    user: {
-      id: "112900459253374078184",
-      email: "achintahazra8515@gmail.com",
-      verified_email: true,
-      name: "Achinta Hazra",
-      given_name: "Achinta",
-      family_name: "Hazra",
-      picture: "https://lh3.googleusercontent.com/a/ACg8ocLpQjeWnGmbMaDVJ4OBbITrgV0nEay0uNTUMRL91gIbbcPAuJEo=s96-c",
-      iat: 1753791913,
-      exp: 1753878313
-    }
-  });
+  try {
+    const token = req.cookies.token;
+    if (!token) return res.status(401).json({ error: 'No token found' });
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    res.json({ user: decoded });
+  } catch (err) {
+    console.error('Error in /userInfo:', err.message);
+    res.status(500).json({ error: 'Invalid token or internal error' });
+  }
 });
+
 
 
 
