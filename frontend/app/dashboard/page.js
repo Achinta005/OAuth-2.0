@@ -1,34 +1,12 @@
-"use client";
-import { useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+'use client';
 
-export default function Dashboard() {
-  const [user, setUser] = useState(null);
-  const searchParams=useSearchParams();
+import React, { Suspense } from 'react';
+import DashboardContent from './DashboardContent';
 
-  useEffect(() => {
-    const tokenFromUrl = searchParams.get("token");
-    if (tokenFromUrl) {
-      localStorage.setItem("token", tokenFromUrl); // store for later
-    }
-
-    const token = localStorage.getItem("token");
-    if (!token) return;
-
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/userInfo`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setUser(data.user);
-      });
-  }, []);
-
+export default function DashboardPage() {
   return (
-    <div>
-      {user ? <h2>Welcome {user.name}!</h2> : <p>Loading user info...</p>}
-    </div>
+    <Suspense fallback={<div>Loading dashboard...</div>}>
+      <DashboardContent />
+    </Suspense>
   );
 }
